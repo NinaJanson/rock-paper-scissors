@@ -1,7 +1,7 @@
 <template>
   <SelectionBox :options="selectionBoxOptions" @selection="handleResult" />
 
-  <button @click="startGame">Start</button>
+  <button :disabled="isDisabled" @click="startGame">Start</button>
   <div class="playerbox">
     <div class="playerbox__player playerbox__player--one">
       {{ currentSelection }}
@@ -10,7 +10,9 @@
       {{ randomEmoji }}
     </div>
   </div>
+  <p>{{ countWinsPlayer1 }} / {{ countWinsPlayer2 }}</p>
   <p>{{ winnerText }}</p>
+  <button @click="newGame">Start new game</button>
 </template>
 
 <script>
@@ -49,6 +51,8 @@ export default {
       randomEmoji: "",
       randomOptionOutput: "",
       winnerText: "Good Luck!",
+      countWinsPlayer1: 0,
+      countWinsPlayer2: 0,
     };
   },
 
@@ -60,20 +64,36 @@ export default {
         return "";
       }
     },
+
+    isDisabled() {
+      if (this.countWinsPlayer1 >= 3 || this.countWinsPlayer2 >= 3) {
+        return true;
+      }
+      return false;
+    },
   },
 
   methods: {
     handleResult(currentItem) {
       this.selectedOption = currentItem;
+      this.randomEmoji = "";
+    },
+
+    countWins() {
+      if (this.selectedOption === this.randomOptionOutput) {
+        this.countWinsPlayer1, this.countWinsPlayer2;
+      } else {
+        options[this.selectedOption].losingAgainst !== this.randomOptionOutput
+          ? this.countWinsPlayer1++
+          : this.countWinsPlayer2++;
+      }
     },
     getWinner() {
-      if (this.selectedOption === this.randomOptionOutput) {
-        this.winnerText = "Draw!";
-      } else {
-        this.winnerText =
-          options[this.selectedOption].losingAgainst !== this.randomOptionOutput
-            ? "You win"
-            : "You loose";
+      if (this.countWinsPlayer1 === 3) {
+        this.winnerText = "Congrats, You won!";
+      }
+      if (this.countWinsPlayer2 === 3) {
+        this.winnerText = "You lost. Try again!";
       }
     },
     getRandomEmoji(itemLength) {
@@ -90,8 +110,13 @@ export default {
         alert("choose an emoji");
       } else {
         this.getRandomEmoji(itemLength);
+        this.countWins();
         this.getWinner();
       }
+    },
+
+    newGame() {
+      window.location.reload();
     },
   },
 
